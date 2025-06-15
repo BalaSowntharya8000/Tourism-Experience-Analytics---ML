@@ -67,9 +67,19 @@ Breakdown of Packages Used:
 **tourism_data_explorer.ipynb** – Jupyter Notebook for data cleaning, exploratory analysis (EDA), model building (regression, classification, recommendation)
 **tourism** – Streamlit frontend folder containing the interactive web application (dashboard, predictions, and recommendations)
 
-### Data Description
+### Data Summary
 The project uses a unified dataset composed of multiple interconnected tables to analyze and predict tourism-related user behavior. Below is a summary of the key datasets:
 
+#### Dataset Description
+- Transaction -->	User visit data with ratings
+- User	--> User demographics (continent, country, etc.)
+- City	--> City metadata
+- Item	--> Attraction info
+- Type	--> Attraction categories
+- Visit Mode --> Visit type reference
+- Continent, Country, Region --> Geographical info
+
+#### Dataset Overview
 **1. Transaction Data**
 - Purpose: Records user visits and attraction ratings.
 - Key Fields: TransactionId, UserId, VisitYear, VisitMonth, VisitMode, AttractionId, Rating
@@ -127,9 +137,9 @@ The project uses a unified dataset composed of multiple interconnected tables to
 - Recommendation: Used RMSE, MAP for performance check.
 
 **Deployment**
-Built a Streamlit app to:
-- Predict visit mode from user inputs.
-- Recommend attractions based on user history/preferences.
+- Built a Streamlit app to:
+   - Predict visit mode from user inputs.
+   - Recommend attractions based on user history/preferences.
 - Display dynamic visualizations of trends, locations, and preferences.
 
 ### Model Evaluation & Metrics
@@ -164,3 +174,11 @@ This interactive web application is built using Streamlit and integrates data an
  
 ### Usage: How to Run the Project
 To run the project, open the terminal and use the following command: streamlit run app(file name).py
+
+### Conclusion
+This project demonstrates how machine learning can enhance the tourism industry by providing personalized recommendations, predicting user satisfaction, and classifying travel behavior. By analyzing visitor patterns, attraction preferences, and geographic data, it delivers actionable insights to support data-driven decisions.
+
+The integrated Streamlit application bridges data science and real-world utility through an intuitive, interactive interface. Future enhancements may include incorporating real-time data, scaling to global datasets, and deploying the app on the cloud for broader accessibility.
+
+#### Author Bala Sowntharya Bala Subramanian
+
