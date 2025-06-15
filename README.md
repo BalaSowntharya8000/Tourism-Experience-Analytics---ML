@@ -50,35 +50,24 @@ On Windows: - .\env\Scripts\activate
 To run the Tourism Experience Analytics project, install the required libraries using pip.
 **pip install streamlit pandas plotly openpyxl numpy seaborn matplotlib scikit-learn scikit-surprise**
 
-**Breakdown of Packages Used**
+#### Breakdown of Packages Used
 Breakdown of Packages Used:
 
-- streamlit → Web app framework (Dashboard/Frontend)
-- pandas → Data Manipulation and Analysis
-- plotly → Interactive Visualizations for charts
-- openpyxl → Read/Write Excel files 
-- numpy → Numerical operations and Array Handling
-- seaborn → Statistical plots (Used in EDA)
-- matplotlib → Core plotting library for static charts
-- scikit-learn → ML models (Regression, Classification)
-- scikit-surprise → For building collaborative filtering Recommendation Systems
+- **streamlit** → Web app framework (Dashboard/Frontend)
+- **pandas** → Data Manipulation and Analysis
+- **plotly** → Interactive Visualizations for charts
+- **openpyxl** → Read/Write Excel files 
+- **numpy** → Numerical operations and Array Handling
+- **seaborn** → Statistical plots (Used in EDA)
+- **matplotlib** → Core plotting library for static charts
+- **scikit-learn** → ML models (Regression, Classification)
+- **scikit-surprise** → For building collaborative filtering Recommendation Systems
 
 ### Code File Structure
 **tourism_data_explorer.ipynb** – Jupyter Notebook for data cleaning, exploratory analysis (EDA), model building (regression, classification, recommendation)
 **tourism** – Streamlit frontend folder containing the interactive web application (dashboard, predictions, and recommendations)
 
-**Overall - Streamlit Dashboard**
-#| Page                        | Type            | Unique Feature                          |
-#| --------------------------  | --------------- | ----------------------------------------|
-#| 🏠 Home                    | Intro           | Greeting, app overview                   |
-#| 🔍 Data Explorer           | Raw Data Viewer | View & export any sheet                  |
-#| 📊 User Summary Statistics | Recommendation  | Personalized suggestions + user segments |
-#| 📈 Analyze Trends          | EDA / Trends    | Year-wise trends by region/type/mode     |
-#| 🧮 Predict Visit Mode      | Classification  | Predict purpose (Family, Business)       |
-#| 📈 Predict Ratings         | Regression      | Predict rating scores for attractions    |
-#| 🌍 Get Recommendations     | Recommendation  | Real-time top-N attraction suggestions   |
-
-### Dataset Overview:
+### Data Description
 The project uses a unified dataset composed of multiple interconnected tables to analyze and predict tourism-related user behavior. Below is a summary of the key datasets:
 
 **1. Transaction Data**
