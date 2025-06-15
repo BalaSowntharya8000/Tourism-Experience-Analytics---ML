@@ -173,7 +173,8 @@ This interactive web application is built using Streamlit and integrates data an
      - Combines collaborative and content-based filtering for personalized results.
  
 ### Usage: How to Run the Project
-To run the project, open the terminal and use the following command: streamlit run app(file name).py
+To run the project, open the terminal and use the following command: 
+- streamlit run app(file name).py
 
 ### Conclusion
 This project demonstrates how machine learning can enhance the tourism industry by providing personalized recommendations, predicting user satisfaction, and classifying travel behavior. By analyzing visitor patterns, attraction preferences, and geographic data, it delivers actionable insights to support data-driven decisions.
