@@ -15,6 +15,20 @@ This project leverages machine learning and data analytics to enhance user exper
 - **Visit details:** Year, Month, Visit Mode
 - **Attraction attributes:** Type, Location, Ratings
 
+### Highlights
+**Hybrid Recommendation System**
+- Combines collaborative filtering and content-based approaches to deliver highly personalized tourist attraction suggestions.
+**6+ Dynamic Visualizations**
+- Interactive charts and graphs using Plotly, Seaborn, and Matplotlib for trend analysis and insights.
+**Location-Aware Predictions**
+- Models leverage geographical data (continent, country, city) to improve prediction accuracy.
+**Multi-Task ML Implementation**
+- Integrated regression, classification, and recommendation systems in a single project.
+**Rich, Multi-Table Dataset**
+- Connected transactional, demographic, geographic, and attraction metadata for robust analysis.
+**End-to-End Streamlit Dashboard**
+- Fully interactive web app combining exploration, prediction, and recommendation features.
+
 ## Problem Statement:
 Tourism agencies and travel platforms aim to enhance user experiences by leveraging data to provide personalized recommendations, predict user satisfaction, and classify potential user behavior. This project involves analyzing user preferences, travel patterns, and attraction features to achieve three primary objectives: regression, classification, and recommendation.
 
@@ -51,7 +65,6 @@ To run the Tourism Experience Analytics project, install the required libraries 
 **pip install streamlit pandas plotly openpyxl numpy seaborn matplotlib scikit-learn scikit-surprise**
 
 #### Breakdown of Packages Used
-Breakdown of Packages Used:
 
 - **streamlit** → Web app framework (Dashboard/Frontend)
 - **pandas** → Data Manipulation and Analysis
@@ -174,7 +187,7 @@ This interactive web application is built using Streamlit and integrates data an
  
 ### Usage: How to Run the Project
 To run the project, open the terminal and use the following command: 
-- streamlit run app(file name).py
+- streamlit run tourism_dashboard.py
 
 ### Conclusion
 This project demonstrates how machine learning can enhance the tourism industry by providing personalized recommendations, predicting user satisfaction, and classifying travel behavior. By analyzing visitor patterns, attraction preferences, and geographic data, it delivers actionable insights to support data-driven decisions.
