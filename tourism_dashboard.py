@@ -1745,6 +1745,7 @@ elif page == "🧮 Predict Visit Mode":
 #     - Dynamic filters for Year and Month to view custom prediction breakdown
 
 #📈 Predict Ratings
+#📈 Predict Ratings
 elif page == "📈 Predict Ratings":   #Check if the current Streamlit page selected is "📈 Predict Ratings"
 
     #PAGE TITLE
@@ -2022,6 +2023,38 @@ elif page == "📈 Predict Ratings":   #Check if the current Streamlit page sele
     # - mean_squared_error(y_test, y_pred) → Calculates MSE
     # - r2_score(y_test, y_pred) → Calculates R² Score
 
+    # 📅 Year-wise Average Actual Ratings
+    st.subheader("📅 Year-wise Average Actual Ratings")
+
+    if 'VisitYear' in df.columns:
+        yearwise_rating = df.groupby('VisitYear')['Rating'].mean().reset_index()
+        fig_year = px.line(
+           yearwise_rating,
+           x='VisitYear',
+           y='Rating',
+           markers=True,
+           title="Year-wise Average Ratings",
+           labels={'Rating': 'Avg Rating'}
+        )
+        st.plotly_chart(fig_year, use_container_width=True)
+    else:
+        st.info("VisitYear column is not available for trend analysis.")
+
+    #Purpose:
+    # Visualize the average user ratings for attractions over different years.
+    # Helps identify trends or changes in satisfaction levels over time, which can 
+         #support decisions on service improvement or tourism policy.
+
+    #Key Features Implemented:
+    # - Grouping actual ratings by VisitYear
+    # - Interactive line chart to observe annual satisfaction trends
+    # - Marker points for clear visibility of year-on-year values
+
+    #Commands Used:
+    # - groupby(...).mean().reset_index() → Aggregates average ratings by year
+    # - px.line(...) → Creates an interactive line chart
+    # - st.plotly_chart(...) → Displays Plotly charts within the Streamlit interface
+    
 
     # 🔁 Cross-Validation Score
 
@@ -2042,7 +2075,7 @@ elif page == "📈 Predict Ratings":   #Check if the current Streamlit page sele
     # - .mean() → Get the average R² score across all folds
 
     # 📋 Display Metrics
-    st.subheader("📉 Model Evaluation Metrics")              #📊 Display model evaluation results on the Streamlit app
+    st.subheader("📉 Model Evaluation Metrics")               #📊 Display model evaluation results on the Streamlit app
     st.write(f"**Mean Squared Error (MSE):** {mse:.2f}")      #🧮 Show Mean Squared Error
     st.write(f"**R² Score (Test Set):** {r2:.2f}")            #📈 Show R² Score on test data
     st.write(f"**Cross-Validated R² Score:** {cv_score:.2f}") #🔁 Show Cross-Validation R² Score
@@ -2058,6 +2091,82 @@ elif page == "📈 Predict Ratings":   #Check if the current Streamlit page sele
     # - st.subheader(...) → Add a subheading section
     # - st.write(f"...") → Display formatted metrics using f-strings
 
+    # 🔗 Correlation Score (Optional)
+    from scipy.stats import pearsonr
+    corr, _ = pearsonr(y_test, y_pred)
+    with st.expander("🔎 Additional Insights"):
+        st.write(f"🔗 Correlation between Actual and Predicted Ratings: {corr:.2f}")
+
+    #Purpose:
+    #Measure the strength and direction of the linear relationship
+      #between actual user ratings and predicted ratings from the model.
+    #A higher value (closer to 1) indicates better alignment.
+
+    #Key Features Implemented:
+    # - Uses Pearson correlation coefficient to assess linear dependency
+    # - Wrapped in Streamlit expander for optional detailed view
+    # - Enhances interpretability beyond MSE and R²
+
+    #Commands Used:
+    # - pearsonr(...) → Calculates Pearson correlation between actual and predicted values
+    # - st.expander(...) → Creates a collapsible UI section
+    # - st.write(...) → Displays correlation result inside the UI    
+
+    # 📊 Plot 1: Actual Ratings Distribution
+    st.subheader("📊 Actual Ratings Distribution")
+    fig_actual = px.histogram(y_test, nbins=10, title="Actual Ratings", labels={'value': 'Rating'})
+    st.plotly_chart(fig_actual, use_container_width=True)
+
+    #Purpose:
+    # Visualize the distribution of actual user ratings in the test set.
+    # Helps understand how frequently each rating level (1 to 5) appears, and whether the data is skewed or balanced.
+
+    #Key Features Implemented:
+    # - Histogram of real user ratings
+    # - Labeling for clear interpretation
+    # - Uses Streamlit's interactive Plotly integration
+
+   #Commands Used:
+   # - px.histogram(...) → Generates histogram from y_test values
+   # - st.plotly_chart(...) → Renders the plot inside the Streamlit app
+
+    # 📊 Plot 2: Predicted Ratings Distribution
+    st.subheader("📊 Predicted Ratings Distribution")
+    fig_pred = px.histogram(
+       pd.Series(y_pred, name='Predicted Rating'),
+       nbins=10,
+       title="Predicted Ratings",
+    labels={'value': 'Rating'}
+    )
+
+    # Set consistent x-axis range and ticks (1 to 5, step 1)
+    fig_pred.update_layout(
+       xaxis=dict(
+           tickmode='linear',
+           tick0=1,
+           dtick=1,
+           range=[1, 5]
+        )
+    )
+
+    st.plotly_chart(fig_pred, use_container_width=True)
+
+    #Purpose:
+    # Display how the predicted user ratings are distributed across the test set.
+    # Helps evaluate the model’s output spread — whether predictions are skewed, clustered, or balanced around 
+       #certain values.
+
+    #Key Features Implemented:
+    # - Histogram to show frequency of predicted rating values
+    # - Consistent x-axis scaling (1 to 5) for comparability with actual ratings
+    # - Uses Plotly for interactive charting
+
+    #Commands Used:
+    # - pd.Series(...) → Wraps y_pred for labeling
+    # - px.histogram(...) → Generates the histogram from predicted values
+    # - fig.update_layout(...) → Adjusts axis ticks and range
+    # - st.plotly_chart(...) → Displays the plot within Streamlit
+
     #📍Scatterplot: Actual VS Predicted
 
     #Display section title
@@ -2069,7 +2178,15 @@ elif page == "📈 Predict Ratings":   #Check if the current Streamlit page sele
     #📊 Create the scatterplot
     fig, ax = plt.subplots()
     sns.scatterplot(data=result_df, x='Actual', y='Predicted', ax=ax)
+
+    # Add perfect fit line
+    ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', linestyle='--', label='Perfect Prediction')
+
+    #Set titles and Labels
     ax.set_title("Actual vs Predicted Ratings")
+    ax.set_xlabel("Actual Rating")
+    ax.set_ylabel("Predicted Rating")
+    ax.legend()
 
     #📺 Render the plot in the Streamlit interface
     st.pyplot(fig)
@@ -2113,7 +2230,7 @@ elif page == "📈 Predict Ratings":   #Check if the current Streamlit page sele
     # - encode('utf-8') → Encode CSV string for download
     # - st.download_button(...) → Create a file download button in Streamlit
 
-#📈 Predict Ratings
+# 📈 Predict Ratings Page Documentation
 
 #Short Description
 #This page predicts the **rating a user would give to a tourist attraction** based on their travel preferences, location, visit mode, and attraction type.
@@ -2125,7 +2242,11 @@ elif page == "📈 Predict Ratings":   #Check if the current Streamlit page sele
 # - Provide predictive insights using historical user and attraction data.
 
 #Key Features Used:
-    #Continent, Region, Country, City, Visit Year & Month, Visit Mode, Attraction Type, and Avg Attraction Rating
+# - Continent, Region, Country, City
+# - Visit Year & Month
+# - Visit Mode (inferred via VisitMonth)
+# - Attraction Type
+# - Average Attraction Rating (via aggregation)
 
 #Model Used
 #Gradient Boosting Regressor:
@@ -2135,13 +2256,22 @@ elif page == "📈 Predict Ratings":   #Check if the current Streamlit page sele
 
 # 🔍 Why this Model?
 # - Performs well on structured/tabular data
-# - Automatically handles non-linear relationships
-# - Boosting approach reduces error iteratively, making predictions more accurate
+# - Automatically captures non-linear relationships
+# - Boosting approach reduces error iteratively, improving predictive accuracy
 
 #Model Performance: 
-    # - MSE: {mse:.2f}  
-    # - R²: {r2:.2f}  
-    # - Cross-Validated R²: {cv_score:.2f}
+# - Mean Squared Error (MSE): {mse:.2f}
+# - Root Mean Squared Error (RMSE): {rmse:.2f}
+# - R² Score (Test Set): {r2:.2f}
+# - Cross-Validated R² Score: {cv_score:.2f}
+# - 🔗 Correlation between Actual and Predicted Ratings: {corr:.2f}
+
+#Visualizations Included:
+# - 📅 Year-wise Average Actual Ratings (Line Chart)
+# - 📊 Actual Ratings Distribution (Histogram)
+# - 📊 Predicted Ratings Distribution (Histogram with fixed x-axis ticks)
+# - 🔍 Actual vs Predicted Ratings (Scatter Plot with Ideal Fit Line)
+# - 📥 Download Button for exporting predictions as CSV
 
 #Libraries and Tools Used
 
@@ -2153,30 +2283,37 @@ elif page == "📈 Predict Ratings":   #Check if the current Streamlit page sele
 # - to_csv()         → Export predictions to CSV
 
 ## 🧪 scikit-learn
-# - train_test_split()          → Split data into training and testing sets
-# - GradientBoostingRegressor() → Initialize and train the regression model
-# - mean_squared_error()        → Measure prediction error
-# - r2_score()                  → Measure prediction accuracy (R²)
-# - cross_val_score()           → Perform cross-validation for generalization check
+# - train_test_split()           → Split data into training and testing sets
+# - GradientBoostingRegressor()  → Train regression model
+# - mean_squared_error()         → Measure error magnitude
+# - r2_score()                   → Evaluate model fit (R²)
+# - cross_val_score()            → Perform cross-validation for generalization
+# - pearsonr()                   → Compute correlation between actual and predicted
 
 ## 📊 seaborn & matplotlib
-# - sns.scatterplot()              → Plot actual vs predicted ratings
-# - plt.subplots(), ax.set_title() → Customize and render plots
+# - sns.scatterplot()              → Actual vs Predicted Ratings
+# - plt.subplots(), ax.plot(), ax.set_*() → Build and customize scatter plots
+
+## 📈 plotly.express
+# - px.histogram() → Interactive histograms for rating distributions
+# - px.line()      → Year-wise trend visualization
 
 ## 🖥️ Streamlit
-# - st.title(), st.markdown(), st.subheader() → Structure page content
-# - st.write()                                → Display model metrics
-# - st.pyplot()                               → Show plots in app
-# - st.download_button()                      → Export prediction results
+# - st.title(), st.markdown(), st.subheader() → Structure the page
+# - st.write(), st.info()                     → Display insights and messages
+# - st.plotly_chart(), st.pyplot()           → Render plots
+# - st.expander()                             → Wrap optional metrics
+# - st.download_button()                      → Export CSV predictions
 
 # 💡 Page Workflow
-# 1. Load Excel sheets and merge to form a master DataFrame
-# 2. Clean data and engineer average attraction ratings
-# 3. Select relevant features and define target variable (Rating)
-# 4. Split data, train Gradient Boosting Regressor.
-# 5. Evaluate performance with MSE, R², and cross-validation
-# 6. Visualize predictions vs actual ratings
-# 7. Allow download of prediction results as CSV
+# 1. Load Excel sheets and merge them to build the full dataset.
+# 2. Clean and preprocess data (drop missing, compute averages).
+# 3. Define predictive features and the target variable (Rating).
+# 4. Train a Gradient Boosting Regressor with defined hyperparameters.
+# 5. Evaluate performance using MSE, RMSE, R², cross-validation, and correlation.
+# 6. Visualize rating distributions, time trends, and prediction accuracy.
+# 7. Enable download of predictions for external use.
+
 
 #🌍 Get Recommendations
 elif page == "🌍 Get Recommendations":    #Triggers this section when 'Get Recommendations' is selected in the sidebar
