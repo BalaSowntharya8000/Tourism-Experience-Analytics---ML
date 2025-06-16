@@ -80,7 +80,10 @@ To run the Tourism Experience Analytics project, install the required libraries 
 **tourism_data_explorer.ipynb** – Jupyter Notebook for data cleaning, exploratory analysis (EDA), model building (regression, classification, recommendation)
 **tourism** – Streamlit frontend folder containing the interactive web application (dashboard, predictions, and recommendations)
 
-### Data Summary
+### Data Sources
+Access the datasets used in this project from the following link:
+https://docs.google.com/spreadsheets/d/1AsLu5euW7koBNI3OAkPqE53JQ1d6UGKD/edit?gid=109422913#gid=109422913
+
 The project uses a unified dataset composed of multiple interconnected tables to analyze and predict tourism-related user behavior. Below is a summary of the key datasets:
 
 #### Dataset Description
