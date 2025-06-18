@@ -178,11 +178,12 @@ if page == "🏠 Home":
 
        - 🏠 **Home**                  : Landing page with dynamic greetings and project overview  
        - 🔍 **Data Explorer**         : Explore and visualize raw tourism data using filters and charts 
+       - 📊 **User Summary Statistics**: Personalized attraction suggestions, user segments, and tourism behavior insights           
        - 📈 **Analyze Trends**        : Estimate user ratings using input-based prediction              
        - 🧮 **Predict Visit Mode**    : Predict a user's travel purpose (e.g., Family, Business)  
+       - 📈 **Predict Ratings**       : Predict user ratings based on travel patterns, destination, and attraction type
        - 🌍 **Get Recommendations**   : Explore region-wise travel trends  
-       - 📊 **User Summary Statistics**: Personalized attraction suggestions, user segments, and tourism behavior insights
-       - 📈 **Predict Ratings**       : Predict how users would rate attractions using a ML model based on travel behavior, location, and attraction type
+    
        """) #End of markdown instructions
       
 
@@ -389,12 +390,12 @@ elif page == "🔍 Data Explorer":  #If user selects the Data Explorer page
 # - px.histogram()                       → Plot distribution of a numeric column  
 # - st.plotly_chart()                    → Embed the Plotly chart in the app  
 
-#Enhanced Year-wise Histogram Support 🆕  
+#Enhanced Year-wise Histogram Support   
 # - Handles special case for 'VisitYear' column  
 # - Dynamically sets tick labels to show all years (e.g., 2013, 2014...) using:  
 #   fig.update_layout(xaxis=dict(tickmode='array', tickvals=sorted_years))
 
-#Best Practice Tip 🧠  
+#Best Practice Tip 
 # - Use .dropna().unique() when setting custom tick labels to exclude NaNs  
 # - Keeps axis labels clean and avoids plotting issues
 
@@ -428,13 +429,6 @@ elif page == "🔍 Data Explorer":  #If user selects the Data Explorer page
 # - encode('utf-8')                     → Converts text to bytes for downloading files (CSV format)  
 # - if ... else ...                     → Conditional logic used for choosing how to handle null values  
 # - dict{} and list[]                   → Used for mapping sheet names and dropdown options
-
-#🚀 FUTURE EXTENSIONS (Optional)  
-# - Add filters (e.g., by country or year) before displaying table or chart  
-# - Add multi-column sorting or conditional formatting  
-# - Include summary stats (mean, median, std) before/after the table  
-# - Enable bar charts for categorical columns (e.g., VisitMode frequency)  
-# - Allow user to select multiple numeric columns to compare distributions
 
 # 📊 USER SUMMARY STATISTICS
 elif page == "📊 User Summary Statistics":   #Condition to render the User Summary Statistics page
@@ -1187,25 +1181,6 @@ elif page == "📈 Analyze Trends":
     #Display the generated plot within the Streamlit app
     st.pyplot(fig)
 
-
-    #🌐 Country-Wise Visits
-
-    #🌐 Add a section title for the country-wise visit count visualization
-    st.subheader("🌐 Country-wise Visit Counts")
-    #📈 Count the number of visits per country and convert the result into a DataFrame
-    country_df = df['Country'].value_counts().reset_index()
-    #Rename the columns to 'Country' and 'Visit Count' for easier interpretation
-    country_df.columns = ['Country', 'Visit Count']
-    #🎨 Initialize a matplotlib figure and axis for plotting
-    fig, ax = plt.subplots()
-    #📊 Generate a horizontal bar plot using seaborn to show visit counts by country
-    sns.barplot(data=country_df, x='Visit Count', y='Country', palette='viridis', ax=ax)
-    #🏷️ Set the title of the bar chart
-    ax.set_title("Visits by Country")
-    #Render the plot inside the Streamlit app
-    st.pyplot(fig)
-
-
     #🧳Visit Modes
 
     #🧳 Add a section header for visit modes distribution
@@ -1294,7 +1269,7 @@ elif page == "📈 Analyze Trends":
     #Tip       : Use download option to analyze externally  
 
     #Short Description:
-    #This module visualizes tourism trends across regions, countries, visit modes, attraction types, and time (year/month)
+    #This module visualizes tourism trends across regions, visit modes, attraction types, and time (year/month)
     #It allows users to filter by year or view overall insights, with interactive charts and exportable data
  
     #🎯 PURPOSE:
@@ -1744,575 +1719,344 @@ elif page == "🧮 Predict Visit Mode":
 #     - Year-wise predicted visit mode trends
 #     - Dynamic filters for Year and Month to view custom prediction breakdown
 
-#📈 Predict Ratings
-#📈 Predict Ratings
-elif page == "📈 Predict Ratings":   #Check if the current Streamlit page selected is "📈 Predict Ratings"
 
-    #PAGE TITLE
-    st.title("📈 Predict User Attraction Rating")
-    #Displays the title at the top of the page in a larger font using Streamlit's st.title()
-
-    # 📝 PAGE DESCRIPTION
+#🎯Check if the selected page is "📈 Predicted Ratings" and render this section
+elif page == "📈 Predict Ratings":
+    #Page Title & Description
+    st.markdown("## 📈 Predict Tourist Attraction Ratings")
+    #Display the main page title with a larger markdown header
     st.markdown("""
-    This page predicts **user ratings** for tourist attractions  
-    based on travel preferences, location details, and attraction types.  
-    This helps tourism providers understand satisfaction trends and personalize experiences.
+    This page uses advanced data patterns to **predict how users might rate tourist attractions**  
+    based on their preferences, visit details, and attraction features.  
+    This helps platforms **suggest better attractions** and **improve service quality**.
     """)
 
-    #Displays a formatted multi-line markdown description below the title
-    #Highlights the goal: Predicting user satisfaction using a regression model
-    #Mentions that results can support personalization and trend analysis
-
-    # 📥 REQUIRED LIBRARIES
-    import pandas as pd                                                    #Data handling
-    import streamlit as st                                                 #UI framework
-    import seaborn as sns                                                  #Visualizations
-    import matplotlib.pyplot as plt                                        #Charts
-    from sklearn.model_selection import train_test_split, cross_val_score  #Data splitting and validation
-    from sklearn.ensemble import GradientBoostingRegressor                 #Regression Model
-    from sklearn.metrics import mean_squared_error, r2_score               #Evaluation Metrics
-
-    # 📂 LOAD EXCEL FILE
-    file_path = r"C:\\Users\\Bala Sowntharya\\Downloads\\Tourism_Experience_Analytics_Dataset.xlsx"
-    # 📁 Define the file path to the Excel dataset using raw string to avoid escape errors
-
+    # 📂 Load Excel Sheets
+    # 📁 Define the local path to the Excel dataset
+    file_path = r"C:\Users\Bala Sowntharya\Downloads\Tourism_Experience_Analytics_Dataset.xlsx"
+    #📄 Load the 'Transaction' sheet containing user visits, attraction IDs, and ratings
     df_transaction = pd.read_excel(file_path, sheet_name='Transaction')
-    # 📑 Load the 'Transaction' sheet – contains user visits, ratings, attraction & visit mode info
 
+    # 👤 Load the 'User' sheet containing user demographics
     df_user = pd.read_excel(file_path, sheet_name='User')
-    # 📑 Load the 'User' sheet – includes user demographics like age, gender, region, etc
 
-    df_item = pd.read_excel(file_path, sheet_name='Updated_Item')
-    # 📑 Load the 'Updated_Item' sheet – contains attraction metadata (ID, location, etc.)
+    # 🗺️ Load the 'Updated_Item' sheet containing detailed attraction information
+    df_updated_item = pd.read_excel(file_path, sheet_name='Updated_Item')
 
-    df_mode = pd.read_excel(file_path, sheet_name='Mode')
-    # 📑 Load the 'Mode' sheet – holds VisitModeId and corresponding visit type labels
-
+    # 🏞️ Load the 'Type' sheet to get types of attractions (e.g., museum, beach)
     df_type = pd.read_excel(file_path, sheet_name='Type')
-    # 📑 Load the 'Type' sheet – maps AttractionTypeId to actual type names (e.g., Beach, Museum)
 
+    # 🚗 Load the 'Mode' sheet to get travel or visit modes (e.g., family, solo)
+    df_mode = pd.read_excel(file_path, sheet_name='Mode')
+
+    # 🏙️ Load the 'Cities' sheet to map CityId to CityName
     df_cities = pd.read_excel(file_path, sheet_name='Cities')
-    # 🏙️ Load 'Cities' – links CityId to CityName
 
+    # 🌍 Load the 'Countries' sheet to map CountryId to Country names
     df_countries = pd.read_excel(file_path, sheet_name='Countries')
-    # 🌍 Load 'Countries' – links CountryId to Country name
 
+    # 🌐 Load the 'Region' sheet to map RegionId to regional names
     df_region = pd.read_excel(file_path, sheet_name='Region')
-    # 🗺️ Load 'Region' – links RegionId to Region name
 
+    # 🗺️ Load the 'Continent' sheet to map ContinentId to continent names
     df_continent = pd.read_excel(file_path, sheet_name='Continent')
-    # 🗺️ Load 'Continent' – links ContinentId to Continent name
 
-    # 🔗 MERGE DATASETS STEP-BY-STEP
+    #Preprocessing
+    # 🔄 Rename 'VisitMode' column to 'VisitModeId' to match with other sheets
     df_transaction.rename(columns={'VisitMode': 'VisitModeId'}, inplace=True)
-    # 🔁 Rename the 'VisitMode' column to 'VisitModeId' to ensure consistent key for merging
 
+    # 🔗 Merge user demographic data using UserId
     df = df_transaction.merge(df_user, on='UserId', how='left')
-    # 🔗 Merge user demographic info using 'UserId'
 
-    df = df.merge(df_item, on='AttractionId', how='left')
-    # 🔗 Merge attraction data using 'AttractionId'
+    # 🔗 Merge attraction details using AttractionId
+    df = df.merge(df_updated_item, on='AttractionId', how='left')
 
+    # 🔗 Merge attraction type (e.g., Nature, Religious) using AttractionTypeId
     df = df.merge(df_type, on='AttractionTypeId', how='left')
-    # 🔗 Merge attraction type info using 'AttractionTypeId'
 
+    # 🔗 Merge visit mode (e.g., Business, Family) using VisitModeId
     df = df.merge(df_mode, on='VisitModeId', how='left')
-    # 🔗 Merge visit mode label using 'VisitModeId'
 
+    # 🏙️ Merge city names using CityId (only keeping CityId and CityName columns)
     df = df.merge(df_cities[['CityId', 'CityName']], on='CityId', how='left')
-    # 🏙️ Merge city names using 'CityId'; select only relevant column to avoid clutter
 
+    # 🌍 Merge country names using CountryId
     df = df.merge(df_countries[['CountryId', 'Country']], on='CountryId', how='left')
-    # 🌍 Merge country names using 'CountryId'
 
+    # 🌐 Merge region names using RegionId
     df = df.merge(df_region[['RegionId', 'Region']], on='RegionId', how='left')
-    # 🗺️ Merge region names using 'RegionId'
 
+    # 🗺️ Merge continent names using ContinentId
     df = df.merge(df_continent[['ContinentId', 'Continent']], on='ContinentId', how='left')
-    # 🗺️ Merge continent names using 'ContinentId'
 
-
-    #Purpose:
-    #Load data from Excel
-    #Perform step-by-step merging to form one consolidated DataFrame `df` with all necessary information for prediction
-
-    #Key Features Implemented:
-    # - Modular Excel sheet loading
-    # - Schema alignment using renaming (VisitMode → VisitModeId)
-    # - Clean merge operations using keys (UserId, AttractionId, etc.)
-
-    #Commands Used:
-    # - pd.read_excel() → Load Excel sheet into DataFrame.
-    # - rename(columns=..., inplace=True) → Rename columns in-place
-    # - merge(..., on=..., how='left') → Combine datasets using key columns (left join)
-
-    #Clean and Rename Columns
+    #Remove rows where Rating is missing (essential for supervised regression)
     df.dropna(subset=['Rating'], inplace=True)
-    df.rename(columns={
-        'VisitMode': 'VisitModeName',
-        'AttractionName': 'Attraction',     #Simplified name for attraction
-        'TypeName': 'AttractionType',       #Clear Label for attraction type
-        'CityName': 'City'                  #Clean city column name
-    }, inplace=True) 
 
+    # 🔍 Feature Selection
+    features = ['UserId', 'Region', 'Country', 'Continent', 'Attraction', 'VisitMode',
+                'CityName', 'VisitYear', 'VisitMonth', 'AttractionType']
+    #Define the list of input features to be used for rating prediction
+    #These include user info, geographic info, attraction metadata, and time-based features
+
+    # 🔍 Feature Selection
     #Purpose:
-    #Remove incomplete entries (rows without ratings).
-    #Standardize column names for easier handling and visualization.
+    # Select the relevant input features that influence user ratings, based on user demographics,
+    # travel behavior, and attraction details.
 
-    #Key Features Implemented:
-    # - Data cleaning (dropna)
-    # - Column renaming for clarity (rename)
+    #Features Selected:
+    # - UserId         → Unique identifier for each user (personal history tracking)
+    # - Region         → Regional classification of the attraction
+    # - Country        → Country where the attraction is located
+    # - Continent      → Continent of the attraction
+    # - Attraction     → Name or ID of the tourist attraction
+    # - VisitMode      → Purpose or mode of visit (e.g., Business, Family, Couples)
+    # - CityName       → City in which the attraction is located
+    # - VisitYear      → Year when the visit occurred (temporal pattern)
+    # - VisitMonth     → Month of the visit (seasonal effects)
+    # - AttractionType → Category/type of the attraction (e.g., Historical, Adventure)
 
-    #Commands Used:
-    # - df.dropna(subset=['Rating'], inplace=True) → Remove rows with missing ratings.
-    # - df.rename(columns={...}, inplace=True) → Rename specific columns in the DataFrame.
+    #These features provide a mix of:
+    # - Geographic context (City, Country, Region, Continent)
+    # - Temporal signals (VisitYear, VisitMonth)
+    # - User behavior (UserId, VisitMode)
+    # - Attraction characteristics (Attraction, AttractionType)
 
+    # 🔧 Extract these columns into a new DataFrame for modeling
+    features = ['UserId', 'Region', 'Country', 'Continent', 'Attraction', 'VisitMode',
+                'CityName', 'VisitYear', 'VisitMonth', 'AttractionType']
+
+
+    df_model = df[features + ['Rating']].copy()
+    #Create a new DataFrame for modeling by selecting only the chosen features and the target variable 'Rating'
+    #Use .copy() to avoid modifying the original DataFrame by reference
+
+    # 🔁 Target Encoding
+
+    # 🔃 Loop through each categorical feature to encode using mean rating
+    for col in ['UserId', 'Region', 'Country', 'Continent', 'Attraction', 'VisitMode', 'CityName', 'AttractionType']:
+        # 📊 Calculate the mean rating for each unique value in the categorical column
+        means = df_model.groupby(col)['Rating'].mean()
+        # Map the mean rating back to the original dataframe as a new encoded feature (e.g., 'UserId_enc')
+        df_model[col + '_enc'] = df_model[col].map(means)
+
+    # 📦 Final Feature Set
+    X = df_model[[col + '_enc' for col in ['UserId', 'Region', 'Country', 'Continent',
+                                           'Attraction', 'VisitMode', 'CityName', 'AttractionType']]
+                 + ['VisitYear', 'VisitMonth']]
+    #Select the final input features for the model:
+    #Encoded categorical variables (e.g., 'UserId_enc', 'Region_enc', etc.)
+    #Numerical time-based features ('VisitYear', 'VisitMonth')
+
+    y = df_model['Rating']
+    # 🎯 Define the target variable – user rating of the attraction
     
-    #Add average rating per attraction
-    # 📊 Calculate average rating for each attraction
-    avg_rating = df.groupby('Attraction')['Rating'].mean().reset_index()
-    # 🏷️ Rename columns for clarity
-    avg_rating.columns = ['Attraction', 'Avg_Attraction_Rating']
-    # 🔗 Merge the average rating info into the main DataFrame
-    df = df.merge(avg_rating, on='Attraction', how='left')
+    # 🔀 Train-Test Split
+    # 📚 Import the train_test_split function from scikit-learn
+    from sklearn.model_selection import train_test_split
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    #Split the data into training and testing sets
+    #80% for training, 20% for testing
+    #random_state=42 ensures reproducibility of the split
 
-    #Purpose:
-    #Calculate and append the average rating for each attraction across all users.
-    #Helps the model understand global popularity or satisfaction level per attraction.
+    # ⚡ Train XGBoost Regressor
+    # 📦 Import the XGBoost library for regression modeling
+    import xgboost as xgb
+    # 📊 Import evaluation metrics to assess model performance
+    from sklearn.metrics import r2_score, mean_squared_error
 
-    #Key Features Implemented:
-    # - Grouping and averaging ratings by attraction
-    # - Merging the average rating back to the main dataset
-
-    #Commands Used:
-    # - groupby(...).mean() → Group records and calculate the mean rating
-    # - reset_index() → Convert groupby output to a clean DataFrame
-    # - df.merge(...) → Join the average ratings back to the original dataset
-
-    
-    #🎯 Select Features and Target
-    features = ['Continent', 'Region', 'Country', 'City',   # 🌍 Location-based info
-                'VisitYear', 'VisitMonth',                  # 📅 Temporal patterns
-                'VisitModeName', 'AttractionType',          # 🧭 User travel mode & attraction type
-                'Avg_Attraction_Rating']                    # ⭐ Global attraction popularity
-    target = 'Rating'                                       # 🎯 Target variable to be predicted by the model
-
-    #Purpose:
-    # Define the predictor variables (features) and the output variable (target) for the regression model.
-    # The selected features represent user context, attraction characteristics, and visit metadata.
-
-    #Key Features Implemented:
-    # - Selection of relevant columns for model input (features)
-    # - Specification of target variable (rating given by user)
-
-    #Commands Used:
-    # - Define features as a list of column names to be used for model training
-    # - Assign the target variable as a string representing the output labe
-
-
-    #📊 Final Dataframe for Modeling
-    # 🧼 Filter final dataset: keep selected features + target, drop rows with missing data, and sample 1000 rows
-    df_model = df[features + [target]].dropna().sample(1000, random_state=42)
-
-    #One-hot encode categorical variables for modeling
-    df_encoded = pd.get_dummies(df_model[features], drop_first=True)
-
-    # 📂 Final model inputs (X) and outputs (y)
-    X = df_encoded           #Features in encoded numeric form
-    y = df_model[target]     #Actual user ratings to predict
-
-    #Purpose:
-    # Prepare the final dataset for training the regression model by:
-    # - Dropping rows with any missing values in selected features or target
-    # - Sampling 1000 rows for faster experimentation
-    # - Encoding categorical variables using one-hot encoding
-
-    #Key Features Implemented:
-    # - Subset selection with valid rows only (no NaNs)
-    # - Random sampling for performance and reproducibility
-    # - One-hot encoding for categorical variables
-    # - Split into feature matrix `X` and target vector `y`
-
-    #Commands Used:
-    # - df[...].dropna() → Keep only rows without missing values in selected columns
-    # - sample(..., random_state=...) → Randomly sample rows with reproducibility
-    # - pd.get_dummies(..., drop_first=True) → Convert categorical columns to numeric dummy variables
-    # - X = ... / y = ... → Define features (X) and target (y)
-
-
-    #🔀 Split into Training and Test sets
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y,                       #Features and target
-        test_size=0.2,              #20% for testing, 80% for training
-        random_state=42             #Ensures reproducible results
-        )
-
-    #Purpose:
-    # Divide the dataset into training and test subsets.
-    # This allows the model to learn from one portion (training) and be evaluated on unseen data (testing).
-
-    #Key Features Implemented:
-    # - 80/20 split between training and test sets
-    # - Reproducibility ensured using a fixed random seed
-
-    #Commands Used:
-    # - train_test_split(...) → Split feature and target data into training and testing sets
-
-    # 🚀 INITIALIZE GRADIENT BOOSTING REGRESSOR
-    model = GradientBoostingRegressor(     
-        n_estimators=200,                  #💡Number of boosting iterations (trees in the ensemble)
-        learning_rate=0.05,                # 🔧 Controls contribution of each tree (lower = slower, more accurate)
-        max_depth=4,                       # 🌲 Maximum depth of individual regression trees
-        random_state=42                    # 🧪 Fixed seed to ensure repeatable results
+    model = xgb.XGBRegressor(
+        n_estimators=500,
+        learning_rate=0.05,
+        max_depth=10,
+        subsample=0.8,
+        colsample_bytree=0.8,
+        random_state=42
     )
 
-    #Purpose:
-    #Create and configure a Gradient Boosting Regressor to predict user ratings.
-    #This model builds an ensemble of weak learners (shallow trees) to reduce error iteratively.
+    #Initialize the XGBoost Regressor with the following parameters:
+    # 🔹 n_estimators: number of boosting rounds (trees)
+    # 🔹 learning_rate: step size shrinkage to prevent overfitting
+    # 🔹 max_depth: maximum depth of each tree
+    # 🔹 subsample: fraction of samples used per tree (helps generalization)
+    # 🔹 colsample_bytree: fraction of features used per tree
+    # 🔹 random_state: ensures reproducibility
 
-    #Key Features Implemented:
-    # - Gradient boosting technique (ensemble of decision trees)
-    # - Hyperparameter tuning for better accuracy
-    # - Reproducibility using a fixed random seed
+    #Train the XGBoost model using the training data
+    model.fit(X_train, y_train)
 
-    #Commands Used:
-    # - GradientBoostingRegressor(...) → Set up the regressor with specified settings
+    # 🎯 Make predictions on the test data
+    y_pred = model.predict(X_test)
 
-    # ⚙️ Train the Model
-    model.fit(X_train, y_train) #Start training the model
+    # 📊 Evaluation
+    r2 = r2_score(y_test, y_pred)
+    # 📈 Calculate R² Score – measures how well predictions approximate actual values
+    mse = mean_squared_error(y_test, y_pred)
+    # 🧮 Calculate Mean Squared Error – penalizes larger errors more heavily
 
-    #Purpose:
-    # Train the Gradient Boosting Regressor using the training data.
-    # This step allows the model to learn the relationship between input features and the target ratings.
+    # 📝 Display a subheader on the Streamlit app for the evaluation section
+    st.subheader("📉 Model Evaluation Metrics")
+    eval_df = pd.DataFrame({
+        "Metric": ["R² Score", "Mean Squared Error"],
+        "Value": [f"{r2 * 100:.2f}%", f"{mse:.2f}"]
+    })
+    # 📊 Create a DataFrame to neatly format and display evaluation metrics
 
-    #Key Features Implemented:
-    # - Supervised learning (fit model on training data)
-    # - Gradient boosting logic executed internally across 200 trees
+    st.table(eval_df)
+    # 📋 Render the evaluation metrics table in the Streamlit app
 
-    #Commands Used:
-    # - model.fit(X_train, y_train) → Train the regressor using input features and target ratings
+    # 📉📈 Graph - Actual vs Predicted
+    import matplotlib.pyplot as plt  # 🖼️ Import Matplotlib for plotting
+    import seaborn as sns            # 🌈 Import Seaborn for enhanced statistical visualizations
 
-    # 📈 Predict on Test Data
-    y_pred = model.predict(X_test)  #📊 Predict user ratings on test set
+    # 📝 Add a Streamlit subheader for the prediction comparison plot
+    st.subheader("📈 Predicted vs Actual Ratings")
 
-    #Purpose:
-    # Use the trained Gradient Boosting model to predict user ratings on unseen (test) data.
-    # This helps evaluate how well the model generalizes to new data.
+    # 📐 Create a Matplotlib figure and axes with a specific size
+    fig, ax = plt.subplots(figsize=(6, 4))
 
-    #Key Features Implemented:
-    # - Model inference on test dataset
-    # - Stores predicted ratings for comparison with actual ratings
 
-    #Commands Used:
-    # - model.predict(X_test) → Generate predictions using test features
+    sns.scatterplot(x=y_test, y=y_pred, ax=ax, color="teal", s=50)
+    # 🔹 Create a scatter plot with actual ratings on x-axis and predicted ratings on y-axis
+    # 🔸 Use teal color and size 50 dots for better visibility
 
-    # 📉 EVALUATE PERFORMANCE
-    mse = mean_squared_error(y_test, y_pred) #🧮 Calculate Mean Squared Error (lower is better)
-    r2 = r2_score(y_test, y_pred)            #📊 Calculate R² Score 
+    ax.set_xlabel("Actual Ratings")             # 🏷️ Set label for x-axis
+    ax.set_ylabel("Predicted Ratings")          # 🏷️ Set label for y-axis
+    ax.set_title("Predicted vs Actual Ratings") # 🏷️ Set the chart title
+    st.pyplot(fig) # 📊 Render the Matplotlib figure inside the Streamlit app
 
-    #Purpose:
-    # Quantify the accuracy of the trained model using standard regression metrics:
-    # - Mean Squared Error (MSE)
-    # - R² Score (Coefficient of Determination)
+    # 📁 Sample Predictions Table
+    st.subheader("📄 Sample Predictions Table")  #📝 Display a subheader for the sample output section
+    sample_df = pd.DataFrame({'Actual': y_test[:10].values, 'Predicted': y_pred[:10]})
+    # 📋 Create a DataFrame with the first 10 actual and predicted values
+    # 🔹 Useful for quick comparison and debugging
+    st.dataframe(sample_df)  # 📊 Display the sample predictions as an interactive table in Streamlit
 
-    #Key Features Implemented:
-    # - Error-based metric (MSE) to measure average squared difference between actual & predicted values
-    # - Variance-explained metric (R²) to measure goodness-of-fit
-
-    #Commands Used:
-    # - mean_squared_error(y_test, y_pred) → Calculates MSE
-    # - r2_score(y_test, y_pred) → Calculates R² Score
-
-    # 📅 Year-wise Average Actual Ratings
-    st.subheader("📅 Year-wise Average Actual Ratings")
-
-    if 'VisitYear' in df.columns:
-        yearwise_rating = df.groupby('VisitYear')['Rating'].mean().reset_index()
-        fig_year = px.line(
-           yearwise_rating,
-           x='VisitYear',
-           y='Rating',
-           markers=True,
-           title="Year-wise Average Ratings",
-           labels={'Rating': 'Avg Rating'}
-        )
-        st.plotly_chart(fig_year, use_container_width=True)
-    else:
-        st.info("VisitYear column is not available for trend analysis.")
-
-    #Purpose:
-    # Visualize the average user ratings for attractions over different years.
-    # Helps identify trends or changes in satisfaction levels over time, which can 
-         #support decisions on service improvement or tourism policy.
-
-    #Key Features Implemented:
-    # - Grouping actual ratings by VisitYear
-    # - Interactive line chart to observe annual satisfaction trends
-    # - Marker points for clear visibility of year-on-year values
-
-    #Commands Used:
-    # - groupby(...).mean().reset_index() → Aggregates average ratings by year
-    # - px.line(...) → Creates an interactive line chart
-    # - st.plotly_chart(...) → Displays Plotly charts within the Streamlit interface
-    
-
-    # 🔁 Cross-Validation Score
-
-    # 🔄 Perform 5-Fold Cross-Validation on full dataset
-    cv_score = cross_val_score(model, X, y, cv=5, scoring='r2').mean()
-
-    #Purpose:
-    # Evaluate model robustness and generalizability using 5-fold cross-validation.
-    # Helps ensure that the model performs well across different data splits, not just one.
-
-    #Key Features Implemented:
-    # - K-Fold cross-validation with `cv=5` (5 different train/test splits)
-    # - R² scoring metric to evaluate performance
-    # - Averaging the results for stability
-
-    #Commands Used:
-    # - cross_val_score(...) → Perform cross-validation
-    # - .mean() → Get the average R² score across all folds
-
-    # 📋 Display Metrics
-    st.subheader("📉 Model Evaluation Metrics")               #📊 Display model evaluation results on the Streamlit app
-    st.write(f"**Mean Squared Error (MSE):** {mse:.2f}")      #🧮 Show Mean Squared Error
-    st.write(f"**R² Score (Test Set):** {r2:.2f}")            #📈 Show R² Score on test data
-    st.write(f"**Cross-Validated R² Score:** {cv_score:.2f}") #🔁 Show Cross-Validation R² Score
-
-    #Purpose:
-    # Show key evaluation metrics in the Streamlit interface for easy interpretation of model performance.
-
-    #Key Features Implemented:
-    # - Displays MSE, R² on test data, and cross-validated R²
-    # - Clean and readable formatting using Streamlit markdown and f-strings
-
-    #Commands Used:
-    # - st.subheader(...) → Add a subheading section
-    # - st.write(f"...") → Display formatted metrics using f-strings
-
-    # 🔗 Correlation Score (Optional)
-    from scipy.stats import pearsonr
-    corr, _ = pearsonr(y_test, y_pred)
-    with st.expander("🔎 Additional Insights"):
-        st.write(f"🔗 Correlation between Actual and Predicted Ratings: {corr:.2f}")
-
-    #Purpose:
-    #Measure the strength and direction of the linear relationship
-      #between actual user ratings and predicted ratings from the model.
-    #A higher value (closer to 1) indicates better alignment.
-
-    #Key Features Implemented:
-    # - Uses Pearson correlation coefficient to assess linear dependency
-    # - Wrapped in Streamlit expander for optional detailed view
-    # - Enhances interpretability beyond MSE and R²
-
-    #Commands Used:
-    # - pearsonr(...) → Calculates Pearson correlation between actual and predicted values
-    # - st.expander(...) → Creates a collapsible UI section
-    # - st.write(...) → Displays correlation result inside the UI    
-
-    # 📊 Plot 1: Actual Ratings Distribution
-    st.subheader("📊 Actual Ratings Distribution")
-    fig_actual = px.histogram(y_test, nbins=10, title="Actual Ratings", labels={'value': 'Rating'})
-    st.plotly_chart(fig_actual, use_container_width=True)
-
-    #Purpose:
-    # Visualize the distribution of actual user ratings in the test set.
-    # Helps understand how frequently each rating level (1 to 5) appears, and whether the data is skewed or balanced.
-
-    #Key Features Implemented:
-    # - Histogram of real user ratings
-    # - Labeling for clear interpretation
-    # - Uses Streamlit's interactive Plotly integration
-
-   #Commands Used:
-   # - px.histogram(...) → Generates histogram from y_test values
-   # - st.plotly_chart(...) → Renders the plot inside the Streamlit app
-
-    # 📊 Plot 2: Predicted Ratings Distribution
-    st.subheader("📊 Predicted Ratings Distribution")
-    fig_pred = px.histogram(
-       pd.Series(y_pred, name='Predicted Rating'),
-       nbins=10,
-       title="Predicted Ratings",
-    labels={'value': 'Rating'}
+    # 💾 Download CSV option for predictions
+    import io              # 📦 Import io module to handle in-memory text streams for download
+    csv = sample_df.to_csv(index=False).encode('utf-8')
+    # 🧾 Convert the sample predictions DataFrame to a CSV format (no index)
+    # 🔐 Encode the CSV string to UTF-8 for compatibility
+    st.download_button(
+        label="📥 Download Predictions as CSV",
+        data=csv,
+        file_name='predicted_vs_actual_ratings.csv',
+        mime='text/csv',
     )
+    # ⬇️ Display a download button in the Streamlit app
+    # 📎 Allows user to download the predictions as a CSV file
+    # 🗂️ Filename is 'predicted_vs_actual_ratings.csv', format is 'text/csv'
 
-    # Set consistent x-axis range and ticks (1 to 5, step 1)
-    fig_pred.update_layout(
-       xaxis=dict(
-           tickmode='linear',
-           tick0=1,
-           dtick=1,
-           range=[1, 5]
-        )
+    # 💾 Download CSV option for evaluation
+    eval_csv = eval_df.to_csv(index=False).encode('utf-8')
+    # 🧾 Convert the evaluation metrics DataFrame to CSV (exclude index)
+    # 🔐 Encode to UTF-8 for proper CSV formatting and compatibility
+    st.download_button(
+        label="📥 Download Evaluation Metrics",
+        data=eval_csv,
+        file_name='model_evaluation_metrics.csv',
+        mime='text/csv',
     )
+    # ⬇️ Create a download button in the Streamlit app
+    # 📎 Enables users to download evaluation results as a CSV file
+    # 📂 Filename: 'model_evaluation_metrics.csv', MIME type: text/csv
 
-    st.plotly_chart(fig_pred, use_container_width=True)
+#🔄 PAGE TRIGGER:
+# elif page == "📈 Predicted Ratings" → Executes this logic when selected from the sidebar
 
-    #Purpose:
-    # Display how the predicted user ratings are distributed across the test set.
-    # Helps evaluate the model’s output spread — whether predictions are skewed, clustered, or balanced around 
-       #certain values.
+# 🎯 Purpose:
+# Predict how users might rate tourist attractions using machine learning (XGBoost)  
+# - Help platforms improve service quality by understanding predicted satisfaction  
+# - Enable pre-emptive enhancement of lower-rated experiences based on predicted feedback  
 
-    #Key Features Implemented:
-    # - Histogram to show frequency of predicted rating values
-    # - Consistent x-axis scaling (1 to 5) for comparability with actual ratings
-    # - Uses Plotly for interactive charting
+#🌐 USE CASES:
+# - Personalize attraction suggestions based on predicted user preferences
+# - Identify attractions with potential for negative reviews
+# - Strengthen marketing strategies by anticipating satisfaction trends
 
-    #Commands Used:
-    # - pd.Series(...) → Wraps y_pred for labeling
-    # - px.histogram(...) → Generates the histogram from predicted values
-    # - fig.update_layout(...) → Adjusts axis ticks and range
-    # - st.plotly_chart(...) → Displays the plot within Streamlit
+# 🔄 Workflow Breakdown:
+# 1. Data Loading & Merging:
+#    - Loaded multiple Excel sheets: Transaction, User, Item, Location Hierarchy
+#    - Merged to form a unified dataframe with attraction + user + geo + visit info
 
-    #📍Scatterplot: Actual VS Predicted
+# 2. Preprocessing:
+#    - Renamed columns for clarity (e.g., VisitMode → VisitModeId)
+#    - Dropped rows with missing Ratings
 
-    #Display section title
-    st.subheader("🔍 Actual vs Predicted Ratings") 
-    
-    #🧾 Create a DataFrame to compare true vs predicted values
-    result_df = pd.DataFrame({'Actual': y_test, 'Predicted': y_pred})
+# 3. Feature Engineering:
+#    - Selected features: Region, Country, Continent, Attraction, VisitMode, etc.
+#    - Used Target Encoding to numerically represent categorical variables
 
-    #📊 Create the scatterplot
-    fig, ax = plt.subplots()
-    sns.scatterplot(data=result_df, x='Actual', y='Predicted', ax=ax)
+# 4. Model Training:
+#    - Trained an XGBoost Regressor with advanced tuning
+#    - Used 80/20 train-test split for evaluation
 
-    # Add perfect fit line
-    ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', linestyle='--', label='Perfect Prediction')
+# 5. Predictions & Evaluation:
+#    - Compared predicted vs actual ratings
+#    - Visualized results using scatter plots
+#    - Tabulated evaluation metrics (R², MSE)
+#    - Offered downloadable outputs for predictions and evaluations
 
-    #Set titles and Labels
-    ax.set_title("Actual vs Predicted Ratings")
-    ax.set_xlabel("Actual Rating")
-    ax.set_ylabel("Predicted Rating")
-    ax.legend()
+# ✨ KEY FEATURES IMPLEMENTED:
+# - XGBoost model for robust predictions
+# - Target Encoding of categorical features
+# - Evaluation table with R² Score and MSE
+# - Interactive scatter plot for predictions vs actuals
+# - Download buttons for evaluation metrics & predictions
 
-    #📺 Render the plot in the Streamlit interface
-    st.pyplot(fig)
+# 🤖 MODELS & TECHNIQUES USED:
+# - XGBoost Regressor → Used for accurate numeric prediction
+# - Target Encoding   → Converts categorical features using mean of target variable
+# - Train-test split  → Ensures model is evaluated on unseen data
 
-    #Purpose:
-    # Visualize the model’s prediction accuracy by plotting actual vs predicted ratings
-    # Helps in understanding how closely predictions align with real values
+# 🛠️ TOOLS & LIBRARIES USED:
+# Streamlit
+# - st.markdown(), st.subheader(), st.table(), st.dataframe()  → For layout & display
+# - st.download_button(), st.pyplot()                          → For downloads & plotting
 
-    #Key Features Implemented:
-    # - Scatterplot for intuitive visual comparison
-    # - Seaborn + Matplotlib integration within Streamlit
-    # - Uses test set predictions for validation
+# Pandas
+# - pd.read_excel(), merge(), to_csv(), groupby() → Data wrangling and export
 
-    #Commands Used:
-    # - pd.DataFrame(...) → Create comparison table
-    # - sns.scatterplot(...) → Generate scatterplot
-    # - st.pyplot(...) → Display the plot inside Streamlit app
+# Sklearn
+# - train_test_split, r2_score, mean_squared_error → ML utilities
 
+# XGBoost
+# - xgb.XGBRegressor → Model implementation
 
-    #📥 Download Predictions
+# Matplotlib / Seaborn
+# - plt.subplots(), sns.scatterplot() → Visualization
 
-    #Section title in Streamlit
-    st.subheader("📥 Download Prediction Results")
+# 📘 STREAMLIT COMMANDS USED:
+# - st.markdown()          → For adding headers and descriptions
+# - st.subheader()         → Section titles
+# - st.table(), st.dataframe() → Tabular data outputs
+# - st.download_button()   → CSV download for outputs
+# - st.pyplot()            → Render plots in Streamlit
 
-    #🧾 Convert results DataFrame to encoded CSV format
-    csv = result_df.to_csv(index=False).encode('utf-8')
+# 📊 PANDAS COMMANDS USED:
+# - pd.read_excel()        → Load individual sheets
+# - df.merge()             → Combine datasets
+# - df.dropna()            → Clean missing values
+# - df.groupby()           → Aggregate ratings for target encoding
+# - df.to_csv()            → Prepare CSV for download
 
-    #📥 Create download button in the app
-    st.download_button("📥 Download CSV", csv, file_name="rating_predictions.csv", mime='text/csv')
+# 📈 SKLEARN & XGBOOST COMMANDS:
+# - train_test_split()     → Split data for evaluation
+# - r2_score(), mean_squared_error() → Model evaluation metrics
+# - xgb.XGBRegressor()     → Model used for regression
 
-    #Purpose:
-    # Allow users to download the actual vs predicted rating results as a CSV file for offline analysis or reporting.
+# 🧭 PAGE SUMMARY:
+# - Goal               : Predict user satisfaction (ratings) for attractions  
+# - Datasets Used      : User, Transaction, Updated_Item, Mode, Region, etc.  
+# - Features Used      : Categorical (encoded) + Visit year/month  
+# - Model Used         : XGBoost Regressor  
+# - Output             : Predicted ratings, evaluation summary, visuals, export options  
 
-    #Key Features Implemented:
-    # - Exports DataFrame to CSV format
-    # - Encodes CSV content for browser download
-    # - Streamlit download button UI
-
-    #Commands Used:
-    # - to_csv(index=False) → Convert DataFrame to CSV string
-    # - encode('utf-8') → Encode CSV string for download
-    # - st.download_button(...) → Create a file download button in Streamlit
-
-# 📈 Predict Ratings Page Documentation
-
-#Short Description
-#This page predicts the **rating a user would give to a tourist attraction** based on their travel preferences, location, visit mode, and attraction type.
-#It uses a machine learning regression model (Gradient Boosting) and visualizes model performance with key metrics and graphs.
-
-#🎯 PURPOSE:
-# - Understand which factors influence user satisfaction.
-# - Help tourism platforms personalize recommendations and improve service.
-# - Provide predictive insights using historical user and attraction data.
-
-#Key Features Used:
-# - Continent, Region, Country, City
-# - Visit Year & Month
-# - Visit Mode (inferred via VisitMonth)
-# - Attraction Type
-# - Average Attraction Rating (via aggregation)
-
-#Model Used
-#Gradient Boosting Regressor:
-# - Ensemble learning technique combining multiple decision trees
-# - Chosen for its robustness, handling of mixed data types, and ability to reduce overfitting
-# - Parameters tuned: n_estimators=200, learning_rate=0.05, max_depth=4
-
-# 🔍 Why this Model?
-# - Performs well on structured/tabular data
-# - Automatically captures non-linear relationships
-# - Boosting approach reduces error iteratively, improving predictive accuracy
-
-#Model Performance: 
-# - Mean Squared Error (MSE): {mse:.2f}
-# - Root Mean Squared Error (RMSE): {rmse:.2f}
-# - R² Score (Test Set): {r2:.2f}
-# - Cross-Validated R² Score: {cv_score:.2f}
-# - 🔗 Correlation between Actual and Predicted Ratings: {corr:.2f}
-
-#Visualizations Included:
-# - 📅 Year-wise Average Actual Ratings (Line Chart)
-# - 📊 Actual Ratings Distribution (Histogram)
-# - 📊 Predicted Ratings Distribution (Histogram with fixed x-axis ticks)
-# - 🔍 Actual vs Predicted Ratings (Scatter Plot with Ideal Fit Line)
-# - 📥 Download Button for exporting predictions as CSV
-
-#Libraries and Tools Used
-
-## 🐼 pandas
-# - pd.read_excel()  → Load individual sheets from Excel
-# - merge()          → Join multiple DataFrames on key columns
-# - dropna()         → Remove missing values (incomplete ratings)
-# - groupby().mean() → Calculate average attraction rating
-# - to_csv()         → Export predictions to CSV
-
-## 🧪 scikit-learn
-# - train_test_split()           → Split data into training and testing sets
-# - GradientBoostingRegressor()  → Train regression model
-# - mean_squared_error()         → Measure error magnitude
-# - r2_score()                   → Evaluate model fit (R²)
-# - cross_val_score()            → Perform cross-validation for generalization
-# - pearsonr()                   → Compute correlation between actual and predicted
-
-## 📊 seaborn & matplotlib
-# - sns.scatterplot()              → Actual vs Predicted Ratings
-# - plt.subplots(), ax.plot(), ax.set_*() → Build and customize scatter plots
-
-## 📈 plotly.express
-# - px.histogram() → Interactive histograms for rating distributions
-# - px.line()      → Year-wise trend visualization
-
-## 🖥️ Streamlit
-# - st.title(), st.markdown(), st.subheader() → Structure the page
-# - st.write(), st.info()                     → Display insights and messages
-# - st.plotly_chart(), st.pyplot()           → Render plots
-# - st.expander()                             → Wrap optional metrics
-# - st.download_button()                      → Export CSV predictions
-
-# 💡 Page Workflow
-# 1. Load Excel sheets and merge them to build the full dataset.
-# 2. Clean and preprocess data (drop missing, compute averages).
-# 3. Define predictive features and the target variable (Rating).
-# 4. Train a Gradient Boosting Regressor with defined hyperparameters.
-# 5. Evaluate performance using MSE, RMSE, R², cross-validation, and correlation.
-# 6. Visualize rating distributions, time trends, and prediction accuracy.
-# 7. Enable download of predictions for external use.
+# 📊 OUTPUT SECTIONS:
+# 1. Model Evaluation Table (R², MSE)
+# 2. Actual vs Predicted Scatter Plot
+# 3. Sample Predictions Table
+# 4. Download CSV for Predictions
+# 5. Download CSV for Evaluation Metrics
 
 
 #🌍 Get Recommendations
@@ -2590,3 +2334,46 @@ elif page == "🌍 Get Recommendations":    #Triggers this section when 'Get Rec
     # 3. Overall Continent-wise Visits
     # 4. Year-wise Filtered Insights (Region, Country, Continent)
     # 5. Downloadable Summary Table
+
+
+#Overall Summary 
+
+#| Page                        | Type            | Unique Feature                          |
+#| --------------------------  | --------------- | ----------------------------------------|
+#| 🏠 Home                    | Intro           | Greeting, app overview                   |
+#| 🔍 Data Explorer           | Raw Data Viewer | View & export any sheet                  |
+#| 📊 User Summary Statistics | Recommendation  | Personalized suggestions + user segments |
+#| 📈 Analyze Trends          | EDA / Trends    | Year-wise trends by region/type/mode     |
+#| 🧮 Predict Visit Mode      | Classification  | Predict purpose (Family, Business)       |
+#| 📈 Predict Ratings         | Regression      | Predict rating scores for attractions    |
+#| 🌍 Get Recommendations     | Recommendation  | Real-time top-N attraction suggestions   |
+    
+
+#🏠 Home
+#This page gives a welcome message and explains what the app does
+#Just an introduction
+
+#🔍 Data Explorer
+#This page lets you view and download raw data tables (like User, Transaction, etc.)
+#You can clean, filter, and plot basic charts here
+
+#📊 User Summary Statistics
+#This page gives personalized attraction suggestions for a selected user
+#Also shows user segments and trends based on behavior
+
+#📈 Analyze Trends
+#This page shows visit trends by year, region, country, visit mode, etc
+#Can choose a year and see charts about tourism patterns
+
+#🧮 Predict Visit Mode
+#This page predicts the reason for a trip (Family, Business, etc.) using a machine learning model
+#Can see the accuracy and prediction results
+
+#📈 Predict Ratings
+#This section predicts the rating (1–5) a user might give to a tourist attraction
+    #using a regression model trained on visit details and user demographics.
+#It also displays model performance metrics such as R², MSE, and RMSE.
+
+#🌍 Get Recommendations
+#This page suggests new attractions for a user based on their history or similar users
+#Uses collaborative and content-based recommendation logic
