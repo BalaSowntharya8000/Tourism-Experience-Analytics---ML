@@ -710,29 +710,29 @@ elif page == "📊 User Summary Statistics":   #Condition to render the User Sum
       # Handles edge cases like misnamed/missing column headers
       # Keeps the user informed while gracefully degrading functionality
 
-    # 🎯 Attraction Suggestions Based on Similar Users
-    #st.subheader("🎯 Attraction Suggestions Based on Similar Users")
+    #🎯 Attraction Suggestions Based on Similar Users
+    st.subheader("🎯 Attraction Suggestions Based on Similar Users")
 
     #👤 Step 1: User selection
-    #user_id = st.selectbox("👤 Select a User ID for Recommendations:", df_user['UserId'].unique())
+    user_id = st.selectbox("👤 Select a User ID for Recommendations:", df_user['UserId'].unique())
 
     #📍 Step 2: Get attractions visited by the selected user
-    #visited = df_tx[df_tx['UserId'] == user_id]['AttractionId'].unique()
+    visited = df_tx[df_tx['UserId'] == user_id]['AttractionId'].unique()
 
     #👥 Step 3: Find users who visited the same attractions (excluding selected user)
-    #similar_users = df_tx[(df_tx['AttractionId'].isin(visited)) & (df_tx['UserId'] != user_id)]
+    similar_users = df_tx[(df_tx['AttractionId'].isin(visited)) & (df_tx['UserId'] != user_id)]
 
     #🔢 Step 4: Get unique similar user IDs
-    #similar_user_ids = similar_users['UserId'].unique()
+    similar_user_ids = similar_users['UserId'].unique()
 
     #🧾 Step 5: Fetch full visit data of those similar users
-    #similar_visited = df_tx[df_tx['UserId'].isin(similar_user_ids)]
+    similar_visited = df_tx[df_tx['UserId'].isin(similar_user_ids)]
 
     #🆕 Step 6: Recommend attractions that similar users visited but current user hasn't
-    #collab_recs = similar_visited[~similar_visited['AttractionId'].isin(visited)]['AttractionId'].value_counts().head(5)
+    collab_recs = similar_visited[~similar_visited['AttractionId'].isin(visited)]['AttractionId'].value_counts().head(5)
 
     #📋 Step 7: Map those attraction IDs to their names/descriptions
-    #collab_df = updated_item_df[updated_item_df['AttractionId'].isin(collab_recs.index)]
+    collab_df = updated_item_df[updated_item_df['AttractionId'].isin(collab_recs.index)]
 
     #Purpose:
       # - This block implements a basic collaborative filtering approach
@@ -744,29 +744,29 @@ elif page == "📊 User Summary Statistics":   #Condition to render the User Sum
       # - Effective and fast for small or medium datasets
 
     #Display collaborative filtering recommendations if available
-    #if not collab_df.empty:
-        #st.success("Top Recommendations from Similar Users:")
-        #st.dataframe(collab_df[['AttractionId', 'Attraction']])
+    if not collab_df.empty:
+        st.success("Top Recommendations from Similar Users:")
+        st.dataframe(collab_df[['AttractionId', 'Attraction']])
 
     #If no similar-user recommendations, use content-based filtering
-    #else:
-        #st.warning("🤖 No similar-user recommendations found. Showing content-based suggestions instead.")
+    else:
+        st.warning("🤖 No similar-user recommendations found. Showing content-based suggestions instead.")
 
         #Step 1: Get details of attractions the user already visited
-        #visited_details = updated_item_df[updated_item_df['AttractionId'].isin(visited)]
+        visited_details = updated_item_df[updated_item_df['AttractionId'].isin(visited)]
 
         #Step 2: Extract unique AttractionTypeIds and CityIds from visited data
-        #match_type_ids = visited_details['AttractionTypeId'].unique()
-        #match_city_ids = visited_details['AttractionCityId'].unique()
+        match_type_ids = visited_details['AttractionTypeId'].unique()
+        match_city_ids = visited_details['AttractionCityId'].unique()
 
         #📥 Step 3: Recommend attractions based on matched type or city (excluding already visited)
-        #content_df = updated_item_df[
-            #(~updated_item_df['AttractionId'].isin(visited)) &
-            #(
+        content_df = updated_item_df[
+            (~updated_item_df['AttractionId'].isin(visited)) &
+            (
                 #updated_item_df['AttractionTypeId'].isin(match_type_ids) |
                 #updated_item_df['AttractionCityId'].isin(match_city_ids)
-            #)
-        #].drop_duplicates(subset='AttractionId').head(5)
+            )
+        ].drop_duplicates(subset='AttractionId').head(5)
 
     #Logic Summary:
     # - If collaborative filtering has results: show top suggestions from similar users
@@ -774,13 +774,13 @@ elif page == "📊 User Summary Statistics":   #Condition to render the User Sum
     # - Ensures fallback suggestions always exist, improving user experience
 
         #Show content-based recommendations (if collaborative ones were not available)
-        #if not content_df.empty:
-        #    st.success("✅ Top Content-Based Recommendations:")
-        #    st.dataframe(content_df[['AttractionId', 'Attraction', 'AttractionTypeId', 'AttractionCityId']])
+        if not content_df.empty:
+            st.success(" Top Content-Based Recommendations:")
+            st.dataframe(content_df[['AttractionId', 'Attraction', 'AttractionTypeId', 'AttractionCityId']])
         
         #Final fallback if nothing was found
-        #else:
-        #    st.error("No new attractions found among similar users or content-based criteria.")
+        else:
+            st.error("No new attractions found among similar users or content-based criteria.")
 
         with st.expander("ℹ️ How These Recommendations Are Chosen"):
            st.markdown("""
